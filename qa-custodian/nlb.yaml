@@ -12,6 +12,7 @@ policies:
       - not:
         - 'tag:doNotDelete': present
         - 'tag:DoNotDelete': present
+        - 'tag:DeletesOnFriday': present
         - type: value
           key: tag:Name
           op: regex
@@ -41,6 +42,7 @@ policies:
       - not:
         - 'tag:doNotDelete': present
         - 'tag:DoNotDelete': present
+        - 'tag:DeletesOnFriday': present
         - type: value
           key: tag:Name
           op: regex

@@ -1,19 +1,19 @@
 # This is a basic workflow to help you get started with Actions
 
-name: QA Custodian
+name: Tag AWS Resources - Keep til the weekend
 
 # Controls when the workflow will run
 on:
-  workflow_dispatch: #change to nightly cron
+  workflow_dispatch:
     inputs:
-      testInput:
-        description: the test input
-        default: "manual_run"
+      nameToTag:
+        type: string
+        description: the key of resource(s) you would like to tag in AWS
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build-and-run-cloud-custodian:
-    name: Run Cloud Custodian
+    name: Run Cloud Custodian to tag AWS resources
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -29,15 +29,11 @@ jobs:
           pip install c7n-mailer
       - name: update yaml files with user reserved names
         env: 
-          USER_KEYS: ctw
-          DO_NOT_DELETE_KEYS: DO_NOT_DELETE
+          USER_KEYS: ${{ inputs.nameToTag }}
         run: | 
           date
           cd qa-custodian
-          while read -r line; do export USER_KEYS="${USER_KEYS}|$line"; done < user-keys.txt
           for i in `ls *.yaml`; do cat $i | sed -e 's/USERKEYS/'"$USER_KEYS"'/g' -i $i; done
-          while read -r line; do export DO_NOT_DELETE_KEYS="${DO_NOT_DELETE_KEYS}|$line"; done < do-not-delete-keys.txt
-          for i in `ls *.yaml`; do cat $i | sed -e 's/DONOTDELETEKEYS/'"$DO_NOT_DELETE_KEYS"'/g' -i $i; done
       - name: run cloud custodian
         env: 
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -45,6 +41,4 @@ jobs:
         run: |
           source custodian/bin/activate
           cd qa-custodian
-          cat nlb.yaml
-          while read -r line; do custodian run --output-dir=. --region=$line --dry-run nlb.yaml; done < regions.txt
-          while read -r line; do custodian run --output-dir=. --region=$line --dry-run instances.yaml; done < regions.txt
+          while read -r line; do custodian run --output-dir=. --region=$line --dry-run add-friday-tags.yaml; done < regions.txt

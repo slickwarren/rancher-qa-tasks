@@ -1,0 +1,32 @@
+policies:
+# note: userkeys here is an override var. see workflows/manual-tag-aws.yaml
+- name: tag-instances-til-friday
+  resource: aws.ec2
+  filters:
+      - 'tag:DeletesOnFriday': present
+      - not:
+        - 'tag:doNotDelete': present
+        - 'tag:DoNotDelete': present
+        - type: value
+          key: tag:Name
+          op: regex
+          value:  "^.*DONOTDELETEKEYS.*$"
+  actions:
+    - type: remove-tag
+      tags:
+        DeletesOnFriday: 'true'
+- name: tag-nlbs-til-friday
+  resource: app-elb
+  filters:
+      - 'tag:DeletesOnFriday': present
+      - not:
+        - 'tag:doNotDelete': present
+        - 'tag:DoNotDelete': present
+        - type: value
+          key: tag:Name
+          op: regex
+          value:  "^.*DONOTDELETEKEYS.*$"
+  actions:
+    - type: remove-tag
+      tags:
+        DeletesOnFriday: 'true'

@@ -11,11 +11,12 @@ policies:
           #doesNOTcontain
           value:  "^((?!USERKEYS).)*$"
         # instance was tagged to delete yesterday
-        - 'tag:deletesAtMidnight': present
+        - 'tag:DeletesAtMidnight': present
       # instance is not doNotDelete
       - not:
         - 'tag:doNotDelete': present
         - 'tag:DoNotDelete': present
+        - 'tag:DeletesOnFriday': present
         - type: value
           key: tag:Name
           op: regex
@@ -36,6 +37,7 @@ policies:
       - not:
         - 'tag:doNotDelete': present
         - 'tag:DoNotDelete': present
+        - 'tag:DeletesOnFriday': present
         - type: value
           key: tag:Name
           op: regex
@@ -43,4 +45,4 @@ policies:
   actions:
     - type: tag
       tags:
-        deletesAtMidnight: ‘true'
+        DeletesAtMidnight: ‘true'
